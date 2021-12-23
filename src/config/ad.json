@@ -1,0 +1,5 @@
+{
+    "url": "ldaps://172.16.8.170",
+    "user": "administrator@teste.local",
+    "pass": "Mudar@123"
+}
