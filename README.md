@@ -11,7 +11,7 @@ You can use this tutorial to enable ldaps: [Tutorial here](https://techexpert.ti
 
 ## Installation
 ```
-git clone "url"
+git clone https://github.com/bquintiliano/AD_SelfService_ResetPassword_Back.git
 yarn
 
 ```
