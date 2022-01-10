@@ -11,24 +11,17 @@ router.post("/login", (request, response) => {
     
 })
 
-router.post("/disable", AD.authenticateUser, (request, response) => {
-    const { user } = request.body
-    console.log(user)
-    AD.disableUser(user, response)
-    
-})
-
-router.post("/enable", (request, response) => {
-    const { user } = request.body
-    
-    AD.enableUser(user, response)
-    
-})
-
 router.post("/reset", AD.authenticateUser, (request, response) => {
     const { user, passwordUser } = request.body
     
     AD.resetPassword(user, passwordUser, response)
+    
+})
+
+router.post("/fullname",AD.authenticateUser, (request, response) => {
+    const { user } = request.body
+    
+    AD.getUser(user, response)
     
 })
 

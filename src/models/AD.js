@@ -4,12 +4,6 @@ const authConfig = require('../config/auth.json')
 
 class ComandosAD {
 
-    async existUser(user) {
-        const response =  await ad.user(user).exists()
-        
-        return response
-    }
-
     async loginUser(user, passwordUser, response){
        const authenticate = await ad.user(user).authenticate(passwordUser);
 
@@ -37,7 +31,8 @@ class ComandosAD {
         
         try {
             const decoded = jwt.verify(token, authConfig.secret);
-            request.username = decoded;
+            request.user = decoded
+            
         } 
         catch (err) {
             return response.status(401).send("Invalid Token");
@@ -46,52 +41,23 @@ class ComandosAD {
         return next();
 
     }
-
-    
-    async enableUser(username, response) {
-    
-        const userExists = await this.existUser(username)
-
-        if(!userExists){
-            return response.status(200).json({mgs: "Usuário não encontrado"})
-        }
-       
-        ad.user(username).enable()
-
-        return response.status(200).json({mgs: "Usuário habilitado"})
-        
-    }
-    
-    async disableUser(username, response) {
-    
-        const userExists = await this.existUser(username)
-        
-        if(!userExists){
-            return response.status(200).json({mgs: "Usuário não encontrado"})
-        }
-
-        ad.user(username).disable()
-
-        return response.status(200).json({mgs: "Usuário desabilitado"})
-        
-    } 
-
-    
-    async neverExpire(user){
-        await ad.user(user).passwordNeverExpires();
-    }
     
     async resetPassword(user, passwordUser, response){
-
-        const userExists = await this.existUser(user)
-
-        if(!userExists){
-            return response.status(401).json({mgs: "Usuário não encontrado"})
-        }
 
         await ad.user(user).password(passwordUser);
         
         return response.status(200).json({msg: "Senha resetada"})
+    }
+
+    async getUser(user, response){
+        
+        if(user == undefined){
+            return response.status(204).send('Usuário não localizado')
+        }
+
+        const fullName = await ad.user(user).get({ fields: ["displayName"] });
+
+        return response.status(200).json(fullName)
     }
 
 }
