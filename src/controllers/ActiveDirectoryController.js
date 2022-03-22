@@ -7,15 +7,27 @@ class ActiveDirectoryController{
     static async loginUser(request, response){
         const { user, passwordUser} = request.body
 
-        if(user == 'administrador' || user == 'admin'){
+        if(user == 'administrador' || user == 'administrator'){
             return response.status(401).json({error: "Usuário ou senha incorreto"})
+        }
+
+       const nexpassword = await ad.passwordNextLogon(user)
+
+        if(nexpassword == '0'){
+            await ad.passwordNeverExpires(user)
         }
 
        const authenticate = await ad.loginUser(user, passwordUser)
 
        if(!authenticate){
+           await ad.passwordExpires(user)
            return response.status(401).json({error: "Usuário ou senha incorreto"})
        }
+
+       const verifyIfChangePass = setInterval(async () => {
+            await ad.passwordExpires(user)
+            clearInterval(verifyIfChangePass)
+       }, 78000)
        
        const token = jwt.sign({ user }, authConfig.secret, {expiresIn: "5m"})
        
@@ -24,10 +36,19 @@ class ActiveDirectoryController{
 
     static async resetPassword(request, response){
         const { user, passwordUser } = request.body
+        
+        try{
+            await ad.passwordExpires(user)
 
-        ad.resetPassword(user, passwordUser)
+            await ad.resetPassword(user, passwordUser)
+        
+            return response.status(200).json({msg: "Senha resetada"})
 
-        return response.status(200).json({msg: "Senha resetada"})
+        }
+        catch(error){
+            return response.status(500).json(error.message)
+        }
+        
     }
 
     static async getUser (request, response){
